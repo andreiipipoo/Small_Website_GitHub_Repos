@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repositories Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>GitHub Repos Viewer</h1>
+    <p>Repositoris per a l'usuari de GitHub: <span id="user"></span></p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Descripció</th>
+            <th>Seguidors</th>
+        </tr>
+        </thead>
+        <tbody id="repo-table-body">
+        </tbody>
+    </table>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const username = new URLSearchParams(window.location.search).get("username");
+        if (username) {
+            $("#user").text(username);
+
+            $.ajax({
+                url: "https://api.github.com/users/" + username + "/repos",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    const repoTableBody = $("#repo-table-body");
+                    repoTableBody.empty();
+
+                    data.forEach(function (repo) {
+                        const row = $("<tr>");
+                        row.append($("<td>").text(repo.name));
+                        row.append($("<td>").text(repo.description || "No té descripció"));
+                        row.append($("<td>").text(repo.followers || "No té seguidors"));
+                        repoTableBody.append(row);
+                    });
+                },
+                error: function () {
+                    alert("No s'han pogut obtenir els repositoris. Si us plau, comproveu el nom d'usuari.");
+                }
+            });
+        } else {
+            alert("No s'ha proporcionat el nom d'usuari de GitHub.");
+            window.location.href = "index.html";
+        }
+    });
+</script>
+</body>
+</html>
